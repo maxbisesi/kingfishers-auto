@@ -1,0 +1,4 @@
+ 
+ Make api auto like a continueous running REPL program where as you type out commands profiles/sobjects data etc.
+the tests are written to file before your very eyes. 
+
