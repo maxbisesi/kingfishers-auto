@@ -36,7 +36,6 @@ export async function connectAsUsers(users) {
 
 export async function connectAs(userData) {
     // assertions
-    console.log(userData);
     assert.ok(_.has(userData,`loginUrl`),`User has no loginUrl`);
     assert.ok(_.has(userData,`username`),`User has no username`);
     assert.ok(_.has(userData,`password`),`User has no password`);
@@ -48,7 +47,7 @@ export async function connectAs(userData) {
     });
 
     var loginResponse = await soap.login(userData.username, userData.password);
-    console.log(`connected as Id: ${loginResponse.id}`);
+    //console.log(`connected as Id: ${loginResponse.id}`);
     
     var rest = await axios.create({
         baseURL: soap.instanceUrl,
