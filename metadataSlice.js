@@ -2,17 +2,7 @@ import { createSlice,createSelector } from '@reduxjs/toolkit';
 import assert from 'node:assert/strict';
 import _ from 'underscore';
 
-var metadataSlice = createSlice({
-    name: 'metadata',
-    initialState: {
-    },
-    reducers: {
-        storeMetadata(state,action) {
-            var {} = action.payload;
-            
-        },
-    }
-});
+
 
 var getAllMetadataTypes = createSelector(
     [
