@@ -2,29 +2,27 @@ import jsforce from 'jsforce';
 import axios from 'axios';
 import _ from 'underscore';
 import assert from 'node:assert/strict';
-import getUser from './getUser.js';
+import userlist from './users.js';
 
 var connections = {};
+var adminSymbol = Symbol("Admin");
 
-export function addConnection(username,{rest,soap,restRoot}) {
-    //logger(`${username}.restRoot: ${restRoot}`);
-    assert.ok(typeof username === 'symbol');
-    connections[username] = {rest,soap,restRoot};
-    console.log(connections);
+export function getAdminSymbol() {
+    return adminSymbol;
+}
+
+export async function addAdminConnection() {
+    var adminuser = await connectAs(userlist['Admin']);
+    connections[adminSymbol] = adminuser;
 }
 
 export function getAdminConnection() {
-    const a = Symbol.for('Admin');
+    const a = getAdminSymbol();
     return connections[a];
-    //throw new Error(`No admin connections to get from getAdminConnection(), only: ${_.keys(connections)}`);
 }
 
-export function getConnections() {
-    return connections;
-}
-
-export function resetConnections() {
-    connections = {};
+export function addMockAdminConnection(mock) {
+    connections[adminSymbol] = mock;
 }
 
 export async function connectAs(userData) {
@@ -32,6 +30,7 @@ export async function connectAs(userData) {
     assert.ok(_.has(userData,`loginUrl`),`User has no loginUrl`);
     assert.ok(_.has(userData,`username`),`User has no username`);
     assert.ok(_.has(userData,`password`),`User has no password`);
+    assert.ok(_.has(userData,`profile`),`User has no password`);
     // ----------
     var soap = new jsforce.Connection({
         oauth2: {
@@ -59,6 +58,14 @@ export async function connectAs(userData) {
     user.restRoot = url;
     user.version = version;
     return user;
+}
+
+export function getConnections() {
+    return connections;
+}
+
+export function resetConnections() {
+    connections = {};
 }
 
 export async function getLimits(connection,keepLimits) {
