@@ -87,6 +87,8 @@ async function getMetadataList(mdtTypes = [`Profile`]) {
 }
 
 async function ReduxStore(mdtTypes) {
+    // If it can take more than one argument it's an array
+    // If it can only take one it's a string.
     assert.ok(Array.isArray(mdtTypes));
 
     // Lists 
