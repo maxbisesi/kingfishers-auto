@@ -3,16 +3,17 @@ import { stdin as input, stdout as output } from 'node:process';
 import _ from 'underscore';
 import ReduxStore from './ReduxStore.js';
 import {writeLog} from './logger.js';
-import {listMetadata,addAdminConnection} from './api.js';
+import {listMetadataSOAP,addAdminConnection} from './api.js';
 import fs from 'fs/promises';
 
 // var restore = await ReduxStore([`Profile`,`CustomObject`]);
 // console.log(restore.getList([`Profile`]));
 
-// var listedComponents = await listMetadata([`Profile`,`CustomObject`]);
+// var listedComponents = await listMetadataSOAP([`Profile`,`CustomObject`]);
 // console.log();
-// fs.writeFile('./listMetadata.json',JSON.stringify(listedComponents));
-
+// fs.writeFile('./listMetadataSOAP.json',JSON.stringify(listedComponents));
+await addAdminConnection();
+console.log(await listMetadataSOAP([`Profile`,`CustomObject`]));
 // var rl = readline.createInterface({ input, output });
 // var menu = [`SfAuto2 Smoke Test`,`Profiles`,`Option #3`,`Option #4`,`Option #5`,`Option #6`];
 

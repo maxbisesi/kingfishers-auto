@@ -1,6 +1,6 @@
 import ReduxStore from './ReduxStore.js';
 import { jest } from '@jest/globals';
-import { listMetadata, addMockAdminConnection } from './api.js';
+import { listMetadataSOAP, addMockAdminConnection } from './api.js';
 import assert from 'node:assert/strict';
 import _ from 'underscore';
 import CustomObjectProfileList from './mocks/CustomObjectProfileList.js';
@@ -20,9 +20,9 @@ test('mock return', async () => {
     var store = await ReduxStore([`Profile`,`CustomObject`]);
 
     var expctedPros = getFullNameList(`Profile`);
-    var profiles = store.getList(`Profile`);
-    console.log(expctedPros);
-    console.log(profiles);
+    var profiles = store.getMetdataList(`Profile`);
+    // console.log(expctedPros);
+    //console.log(profiles);
 });
 
 function getMockAdminConnection(mocks) {

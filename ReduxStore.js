@@ -13,7 +13,7 @@
 import { configureStore,createSlice,createSelector } from '@reduxjs/toolkit';
 import assert from 'node:assert/strict';
 import { logger } from './logger.js';
-import { listMetadata } from './api.js';
+import { listMetadataSOAP } from './api.js';
 import _ from 'underscore';
 
 var seperator = `--------------------------------------------------------------------------------------------------------------------------------------------\n`;
@@ -37,20 +37,21 @@ function loggerMiddleWare({ getState }) {
 var metadataSlice = createSlice({
     name: 'metadata',
     initialState: {
-        lists: [
+        Lists: [
             [
                 'Profile',
                 [
-                  'B2B Reordering Portal Buyer Profile',
-                  'Standard'
+                  'MOCK profile',
+                  'SOMETHING IS BROKEN IF YOU SEE THIS '
                 ]
             ],
         ]
     },
     reducers: {
         storeMetadataLists(state,action) {
-            var { metadata } = action.payload;
-            state[`lists`] = metadata;
+            var metadataLists = action.payload;
+            console.log(metadataLists);
+            state[`Lists`] = metadataLists;
         },
     }
 });
@@ -73,47 +74,42 @@ var store = configureStore({
       }),loggerMiddleWare]
 });
 
+function selectMetadataLists() {
+    return _.get(store.getState(),`Lists`);
+}
 
-async function getMetadataList(mdtTypes = [`Profile`]) {
+function selectMetadataList(mdttype) {
+    assert.ok(typeof mdttype === 'string');
+    const lists = selectMetadataLists();
+    const typelist = lists.find( ([typename,list],ind,arr) => typename == mdttype );
+    assert.ok(typelist !== undefined,`Metdata Type List not found for: ${mdttype}`);
+
+    return typelist;
+}
+
+async function getMetadataLists(mdtTypeNames) {
     assert.ok(Array.isArray(mdtTypes));
-    var listedMetadata = await listMetadata(mdtTypes);
-    var metadata = [];
-    _.each(listedMetadata,(value, key, list) => {
-        let fullnames = _.map(value,(el,ind,arr) => el.fullName);
-        metadata.push([key,fullnames]);
+    var listMetadataSOAPResult = await listMetadataSOAP(mdtTypes);
+    var metadataTypeLists = [];
+    _.each(mdtTypeNames,(typeName) => {
+        const list = _.map(listMetadataSOAPResult[typeName],(obj) => obj.fullName);
+        metadataTypeLists.push([typeName,list]);
     });
-    return metadata;
+    // [['Profile',['Standard','System Administrator']],['CustomObject',['Account','Contact']]]
+    assert.ok(metadataTypeLists.every((el,ind,arr) => mdtTypeNames.includes(el[0])));
+    store.dispatch(storeMetadataLists(metadataTypeLists));
 }
 
 async function ReduxStore(mdtTypes) {
     // If it can take more than one argument it's an array
     // If it can only take one it's a string.
+    // Call apis and store result in redux store in same function
     assert.ok(Array.isArray(mdtTypes));
     // Lists 
-    var metadata = await getMetadataList(mdtTypes);
-    store.dispatch(storeMetadataLists({metadata}));
+    await getMetadataLists(mdtTypes);
 
-    function getStateProp(prp) {
-        return _.get(store.getState(),prp);
-    }
-
-    function getList(mdttype) {
-        //assert.ok(mdtTypes.includes(mdttype),``)
-        const lists = getStateProp(`lists`);
-        const typelist = lists.find((el,ind,arr) => _.first(el) == mdttype);
-        if(typelist === undefined) return [];
-        return _.last(typelist);
-    }
-
-    var api = Object.create(null);
-    Object.defineProperty(api,'getList',{
-        value: getList,
-        writable: false,
-        configurable: false,
-        enumerable: true
-    });
-
-    return api;
+    // ReduxStore() returns selectors
+    return { selectMetadataList,selectMetadataLists };
 }
 
 

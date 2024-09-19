@@ -152,15 +152,16 @@ export async function readProfilesMetadata(profile) {
 
 }
 
-export function createListMetadataQueries(types) {
+export function createlistMetadataSOAPQueries(types) {
     return _.map(types,(t) => {
         return {'type':t, folder: null};
     });
 }
 
-export async function listMetadata(types) {
+export async function listMetadataSOAP(mdtTypes) {
+    assert.ok(Array.isArray(mdtTypes));
     var { soap,version } = getAdminConnection();
-    var queries = createListMetadataQueries(types);
+    var queries = createlistMetadataSOAPQueries(mdtTypes);
     for(let i = 0; i < 3; i++) {
         try {
             var results = await soap.metadata.list(queries, version); 
@@ -169,5 +170,32 @@ export async function listMetadata(types) {
             console.log(e.code);
         }
     }
-    return _.groupBy(results, function(res){ return res.type });
+    
+    // listedmdt 
+    // {
+    //     'CustomObject':[
+    //         // {
+    //         //     createdById: '0058c000009UrHiAAK',
+    //         //     createdByName: 'Maximilian Bisesi',
+    //         //     createdDate: '1970-01-01T00:00:00.000Z',
+    //         //     fileName: 'objects/Customer.object',
+    //         //     fullName: 'Customer',
+    //         //     id: '',
+    //         //     lastModifiedById: '0058c000009UrHiAAK',
+    //         //     lastModifiedByName: 'Maximilian Bisesi',
+    //         //     lastModifiedDate: '1970-01-01T00:00:00.000Z',
+    //         //     namespacePrefix: '',
+    //         //     type: 'CustomObject'
+    //         //   },
+    //         // ....
+    //     ],
+    //     'Profile': [
+    //         ...
+    //     ]
+    // }
+
+    // listedmdt ^^^
+    var listedmdt = _.groupBy(results, function(res){ return res.type });
+    // console.log(listedmdt);
+    return listedmdt;
 }
