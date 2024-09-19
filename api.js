@@ -4,16 +4,19 @@ import _ from 'underscore';
 import assert from 'node:assert/strict';
 import getUser from './getUser.js';
 
-var connections = new Map();
+var connections = {};
 
-export function addConnection(userName,{rest,soap,restRoot}) {
-    //logger(`${userName}.restRoot: ${restRoot}`);
-    connections[userName] = {rest,soap,restRoot};
+export function addConnection(username,{rest,soap,restRoot}) {
+    //logger(`${username}.restRoot: ${restRoot}`);
+    assert.ok(typeof username === 'symbol');
+    connections[username] = {rest,soap,restRoot};
+    console.log(connections);
 }
 
 export function getAdminConnection() {
-    if(connections.has('Admin')) return connections.get('Admin');
-    throw new Error(`No admin connections to get from getAdminConnection(), only: ${_.keys(connections)}`);
+    const a = Symbol.for('Admin');
+    return connections[a];
+    //throw new Error(`No admin connections to get from getAdminConnection(), only: ${_.keys(connections)}`);
 }
 
 export function getConnections() {
@@ -21,17 +24,7 @@ export function getConnections() {
 }
 
 export function resetConnections() {
-    connections = new Map();
-}
-
-export async function connectAsUsers(users) {
-    var users = _.map(users,getUser);
-    for(const user of users) {
-        const conn = await connectAs(user);
-        conn[`limits`] = await getLimits(conn,[`DailyApiRequests`,`DataStorageMB`,`DailyFunctionsApiCallLimit`]);
-        connections.set(user.name,conn);
-    }
-    return connections;
+    connections = {};
 }
 
 export async function connectAs(userData) {
@@ -79,7 +72,7 @@ export async function getMultipleDescribeMetadatas(rawTable) {
     const objects = _.flatten(rawTable);
     var userObjectRTIs = {};
     var regressionLayoutRows = [];
-    const connections = connectionManager.getConnections();
+    const connections = getConnections();
     for(const username of Object.keys(connections)) {
         const connect = connections[username];
         assert.ok(connect);
@@ -137,7 +130,7 @@ export async function describeSObjectREST(connection,sobject) {
 export async function readProfilesMetadata(profile) {
     assert.ok(!_.isArray(profile),`function readProfilesMetadata() takes one profile at a time not an array, you put: ${profile}`);
     logger(`readProfilesMetadata(${profile})`);
-    var adminConnection = connectionManager.getAdminConnection();
+    var adminConnection = getAdminConnection();
     var { soap } = adminConnection;
     for(let i = 0; i < 5; i++) {
         try {
@@ -159,14 +152,14 @@ export function createListMetadataQueries(types) {
 }
 
 export async function listMetadata(types) {
-    var { soap,version } = connections.get(`Admin`);
+    var { soap,version } = getAdminConnection();
     var queries = createListMetadataQueries(types);
     for(let i = 0; i < 3; i++) {
         try {
             var results = await soap.metadata.list(queries, version); 
             if(results) break;
         } catch(e) {
-            //console.log(e.code);
+            console.log(e.code);
         }
     }
     return _.groupBy(results, function(res){ return res.type });

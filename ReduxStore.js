@@ -13,7 +13,7 @@
 import { configureStore,createSlice,createSelector } from '@reduxjs/toolkit';
 import assert from 'node:assert/strict';
 import { logger } from './logger.js';
-import { listMetadata,connectAsUsers } from './api.js';
+import { listMetadata } from './api.js';
 import _ from 'underscore';
 
 var seperator = `--------------------------------------------------------------------------------------------------------------------------------------------\n`;
@@ -76,7 +76,6 @@ var store = configureStore({
 
 async function getMetadataList(mdtTypes = [`Profile`]) {
     assert.ok(Array.isArray(mdtTypes));
-    await connectAsUsers([`Admin`]);
     var listedMetadata = await listMetadata(mdtTypes);
     var metadata = [];
     _.each(listedMetadata,(value, key, list) => {
@@ -90,7 +89,6 @@ async function ReduxStore(mdtTypes) {
     // If it can take more than one argument it's an array
     // If it can only take one it's a string.
     assert.ok(Array.isArray(mdtTypes));
-
     // Lists 
     var metadata = await getMetadataList(mdtTypes);
     store.dispatch(storeMetadataLists({metadata}));
