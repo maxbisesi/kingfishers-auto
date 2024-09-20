@@ -134,24 +134,6 @@ export async function describeSObjectREST(connection,sobject) {
     return describeSobjectResult;
 }
 
-export async function readProfilesMetadata(profile) {
-    assert.ok(!_.isArray(profile),`function readProfilesMetadata() takes one profile at a time not an array, you put: ${profile}`);
-    logger(`readProfilesMetadata(${profile})`);
-    var adminConnection = getAdminConnection();
-    var { soap } = adminConnection;
-    for(let i = 0; i < 5; i++) {
-        try {
-            var rawResponse = await soap.metadata.read('Profile', [profile]);
-            if(rawResponse) break;
-        } catch(e) {
-            console.log(e.code);
-        }
-    }
-    var fullName = rawResponse['fullName'];
-    console.log(fullName);
-
-}
-
 export function createlistMetadataSOAPQueries(types) {
     return _.map(types,(t) => {
         return {'type':t, folder: null};
@@ -160,12 +142,16 @@ export function createlistMetadataSOAPQueries(types) {
 
 export async function listMetadataSOAP(mdtTypes) {
     assert.ok(Array.isArray(mdtTypes));
-    var { soap,version } = getAdminConnection();
+    var { soap,version,isTest } = getAdminConnection();
     var queries = createlistMetadataSOAPQueries(mdtTypes);
     for(let i = 0; i < 3; i++) {
         try {
-            var results = await soap.metadata.list(queries, version); 
-            if(results) break;
+            var results = await soap.metadata.list(queries, version);
+            if(results) {
+                assert.ok(Array.isArray(results));
+                // console.log(results);
+                break;
+            }
         } catch(e) {
             console.log(e.code);
         }
@@ -196,6 +182,5 @@ export async function listMetadataSOAP(mdtTypes) {
 
     // listedmdt ^^^
     var listedmdt = _.groupBy(results, function(res){ return res.type });
-    // console.log(listedmdt);
     return listedmdt;
 }

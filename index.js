@@ -13,7 +13,7 @@ import fs from 'fs/promises';
 // console.log();
 // fs.writeFile('./listMetadataSOAP.json',JSON.stringify(listedComponents));
 await addAdminConnection();
-console.log(await listMetadataSOAP([`Profile`,`CustomObject`]));
+await listMetadataSOAP([`ApexClass`,`PermissionSet`]);
 // var rl = readline.createInterface({ input, output });
 // var menu = [`SfAuto2 Smoke Test`,`Profiles`,`Option #3`,`Option #4`,`Option #5`,`Option #6`];
 

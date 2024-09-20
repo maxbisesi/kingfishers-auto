@@ -9,20 +9,26 @@ test('ReduxStore to be an async function', () => {
   expect(typeof ReduxStore).toBe('function');
 });
 
-test('mock return', async () => {
-    function getFullNameList(mdt) {
-        return _.map(CustomObjectProfileList[mdt],(ob) => _.get(ob,'fullName'));
-    }
+test('ReduxStore.selectMetadataList()', async () => {
 
+    var expectedprofiles =  [
+        'Customer Community Plus User',
+        'HighVolumePortal',
+        'Customer Community User',
+        'Identity User',
+        'Minimum Access - API Only Integrations'
+    ];
     var admin = getMockAdminConnection([CustomObjectProfileList]);
     addMockAdminConnection(admin);
 
     var store = await ReduxStore([`Profile`,`CustomObject`]);
 
-    var expctedPros = getFullNameList(`Profile`);
-    var profiles = store.getMetdataList(`Profile`);
-    // console.log(expctedPros);
-    //console.log(profiles);
+    var profiles = store.selectMetadataList(`Profile`);
+    var objects = store.selectMetadataList(`CustomObject`);
+    expect(profiles[0]).toBe('Profile');
+    expect(profiles[1]).toEqual(expect.arrayContaining(expectedprofiles));
+    expect(objects[0]).toBe('CustomObject');
+    expect(objects[1]).toEqual(expect.arrayContaining(['AppointmentScheduleLog']));
 });
 
 function getMockAdminConnection(mocks) {
@@ -37,9 +43,12 @@ function getMockAdminConnection(mocks) {
         rest: jest.fn(),
         soap: {
             metadata: {
-                list: jest.fn((q,v) => mocks.at(0))
+                list() {
+                    return Promise.resolve(mocks[0]);
+                }
             }
         },
-        restRoot: `none`
-    }
+        restRoot: `none`,
+        isTest: true
+    };
 }

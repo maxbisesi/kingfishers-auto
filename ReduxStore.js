@@ -50,7 +50,7 @@ var metadataSlice = createSlice({
     reducers: {
         storeMetadataLists(state,action) {
             var metadataLists = action.payload;
-            console.log(metadataLists);
+            //console.log(metadataLists);
             state[`Lists`] = metadataLists;
         },
     }
@@ -74,6 +74,20 @@ var store = configureStore({
       }),loggerMiddleWare]
 });
 
+async function getMetadataLists(mdtTypeNames) {
+    assert.ok(Array.isArray(mdtTypeNames));
+    var listMetadataSOAPResult = await listMetadataSOAP(mdtTypeNames);
+    var metadataTypeLists = [];
+    _.each(mdtTypeNames,(typeName) => {
+        const list = _.map(listMetadataSOAPResult[typeName],(obj) => obj.fullName);
+        // console.log(listMetadataSOAPResult[typeName]);
+        metadataTypeLists.push([typeName,list]);
+    });
+    // [['Profile',['Standard','System Administrator']],['CustomObject',['Account','Contact']]]
+    assert.ok(metadataTypeLists.every((el,ind,arr) => mdtTypeNames.includes(el[0])));
+    store.dispatch(storeMetadataLists(metadataTypeLists));
+}
+
 function selectMetadataLists() {
     return _.get(store.getState(),`Lists`);
 }
@@ -85,19 +99,6 @@ function selectMetadataList(mdttype) {
     assert.ok(typelist !== undefined,`Metdata Type List not found for: ${mdttype}`);
 
     return typelist;
-}
-
-async function getMetadataLists(mdtTypeNames) {
-    assert.ok(Array.isArray(mdtTypes));
-    var listMetadataSOAPResult = await listMetadataSOAP(mdtTypes);
-    var metadataTypeLists = [];
-    _.each(mdtTypeNames,(typeName) => {
-        const list = _.map(listMetadataSOAPResult[typeName],(obj) => obj.fullName);
-        metadataTypeLists.push([typeName,list]);
-    });
-    // [['Profile',['Standard','System Administrator']],['CustomObject',['Account','Contact']]]
-    assert.ok(metadataTypeLists.every((el,ind,arr) => mdtTypeNames.includes(el[0])));
-    store.dispatch(storeMetadataLists(metadataTypeLists));
 }
 
 async function ReduxStore(mdtTypes) {
