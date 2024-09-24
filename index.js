@@ -3,7 +3,7 @@ import { stdin as input, stdout as output } from 'node:process';
 import _ from 'underscore';
 import ReduxStore from './ReduxStore.js';
 import {writeLog} from './logger.js';
-import {listMetadataSOAP,addAdminConnection} from './api.js';
+import {listMetadataSOAP,addAdminConnection, getAdminConnection} from './api.js';
 import fs from 'fs/promises';
 
 // var restore = await ReduxStore([`Profile`,`CustomObject`]);
@@ -12,8 +12,11 @@ import fs from 'fs/promises';
 // var listedComponents = await listMetadataSOAP([`Profile`,`CustomObject`]);
 // console.log();
 // fs.writeFile('./listMetadataSOAP.json',JSON.stringify(listedComponents));
-await addAdminConnection();
-await listMetadataSOAP([`ApexClass`,`PermissionSet`]);
+
+// console.log(Object.keys(mdt));
+
+
+
 // var rl = readline.createInterface({ input, output });
 // var menu = [`SfAuto2 Smoke Test`,`Profiles`,`Option #3`,`Option #4`,`Option #5`,`Option #6`];
 

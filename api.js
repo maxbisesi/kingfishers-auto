@@ -142,6 +142,7 @@ export function createlistMetadataSOAPQueries(types) {
 
 export async function listMetadataSOAP(mdtTypes) {
     assert.ok(Array.isArray(mdtTypes));
+    var isDefined = _.negate(_.isUndefined);
     var { soap,version,isTest } = getAdminConnection();
     var queries = createlistMetadataSOAPQueries(mdtTypes);
     for(let i = 0; i < 3; i++) {
@@ -149,11 +150,11 @@ export async function listMetadataSOAP(mdtTypes) {
             var results = await soap.metadata.list(queries, version);
             if(results) {
                 assert.ok(Array.isArray(results));
-                // console.log(results);
+                assert.ok(results.every((res) => isDefined(res)));
                 break;
             }
         } catch(e) {
-            console.log(e.code);
+            console.log(e);
         }
     }
     
@@ -182,5 +183,6 @@ export async function listMetadataSOAP(mdtTypes) {
 
     // listedmdt ^^^
     var listedmdt = _.groupBy(results, function(res){ return res.type });
+    // assert.ok(_.size(Object.keys(listedmdt)) == _.size(mdtTypes));
     return listedmdt;
 }
