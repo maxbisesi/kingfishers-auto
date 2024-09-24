@@ -3,6 +3,7 @@ import axios from 'axios';
 import _ from 'underscore';
 import assert from 'node:assert/strict';
 import userlist from './users.js';
+import fs from 'fs/promises';
 
 var connections = {};
 var adminSymbol = Symbol("Admin");
@@ -75,56 +76,56 @@ export async function getLimits(connection,keepLimits) {
     return _.pick(limitData,keepLimits);
 }
 
-export async function getMultipleDescribeMetadatas(rawTable) {
-    const objects = _.flatten(rawTable);
-    var userObjectRTIs = {};
-    var regressionLayoutRows = [];
-    const connections = getConnections();
-    for(const username of Object.keys(connections)) {
-        const connect = connections[username];
-        assert.ok(connect);
+// export async function getMultipleDescribeMetadatas(rawTable) {
+//     const objects = _.flatten(rawTable);
+//     var userObjectRTIs = {};
+//     var regressionLayoutRows = [];
+//     const connections = getConnections();
+//     for(const username of Object.keys(connections)) {
+//         const connect = connections[username];
+//         assert.ok(connect);
 
-        // get Meta for objects
-        for(const object of objects) {
-            const describe = await describeSObjectREST(connect,object);
+//         // get Meta for objects
+//         for(const object of objects) {
+//             const describe = await describeSObjectREST(connect,object);
             
             
-            // The Describe responses are different for each user so each user/object response
-            // is saved in the store's state[`recordTypeInfos`] property under a unique unameObjectId property
-            // this loop creates that list.
-            if(describe['recordTypeInfos']) {
-                userObjectRTIs[unameObjectId] = _.map(describe['recordTypeInfos'],(rti) => {
-                    const {name,developerName,urls} = rti;
-                    const layouturl = urls.layout;
-                    return {name,developerName,layouturl};
-                });
-            } else {
-                assert.fail(`${object} describe response did not have a "recordTypeInfos" property.`);
-            }
+//             // The Describe responses are different for each user so each user/object response
+//             // is saved in the store's state[`recordTypeInfos`] property under a unique unameObjectId property
+//             // this loop creates that list.
+//             if(describe['recordTypeInfos']) {
+//                 userObjectRTIs[unameObjectId] = _.map(describe['recordTypeInfos'],(rti) => {
+//                     const {name,developerName,urls} = rti;
+//                     const layouturl = urls.layout;
+//                     return {name,developerName,layouturl};
+//                 });
+//             } else {
+//                 assert.fail(`${object} describe response did not have a "recordTypeInfos" property.`);
+//             }
 
-            // Does basically what we're doing above only it saves the object and recordtypename together
-            // as [<Object Name>, <Record Type Name>] 
-            // The reason for this is it makes it easy to go directly from the step in the feature file:
-            //      And I view the Page Layouts for the following Objects' Record types:
-			//          | Lead | CON_Sales_Lead                        |
-            // That happens in in viewPageLayoutForObjectsRecTypes().
-            // So it's the same metadata but being transformed in two different ways for two different purposes.
-            if(describe['recordTypeInfos']) {
-                const rows = _.map(describe['recordTypeInfos'],(rti) => {
-                    const {developerName} = rti;
-                    return [object,developerName]; 
-                });
-                regressionLayoutRows.push(...rows);
-            } else {
-                assert.fail(`${object} describe response did not have a "recordTypeInfos" property.`);
-            }
-        }
-    }
+//             // Does basically what we're doing above only it saves the object and recordtypename together
+//             // as [<Object Name>, <Record Type Name>] 
+//             // The reason for this is it makes it easy to go directly from the step in the feature file:
+//             //      And I view the Page Layouts for the following Objects' Record types:
+// 			//          | Lead | CON_Sales_Lead                        |
+//             // That happens in in viewPageLayoutForObjectsRecTypes().
+//             // So it's the same metadata but being transformed in two different ways for two different purposes.
+//             if(describe['recordTypeInfos']) {
+//                 const rows = _.map(describe['recordTypeInfos'],(rti) => {
+//                     const {developerName} = rti;
+//                     return [object,developerName]; 
+//                 });
+//                 regressionLayoutRows.push(...rows);
+//             } else {
+//                 assert.fail(`${object} describe response did not have a "recordTypeInfos" property.`);
+//             }
+//         }
+//     }
 
-    // save recordTypeInfos
-    if(!_.isEmpty(userObjectRTIs)) store.dispatch(mdtSlice.saveRecordTypeInfos(userObjectRTIs));
-    if(_.size(regressionLayoutRows) > 0) store.dispatch(mdtSlice.saveRegressionLayoutRows(regressionLayoutRows));
-}
+//     // save recordTypeInfos
+//     if(!_.isEmpty(userObjectRTIs)) store.dispatch(mdtSlice.saveRecordTypeInfos(userObjectRTIs));
+//     if(_.size(regressionLayoutRows) > 0) store.dispatch(mdtSlice.saveRegressionLayoutRows(regressionLayoutRows));
+// }
 
 export async function describeSObjectREST(connection,sobject) {
     //DescribeSObjectResult
@@ -185,4 +186,42 @@ export async function listMetadataSOAP(mdtTypes) {
     var listedmdt = _.groupBy(results, function(res){ return res.type });
     // assert.ok(_.size(Object.keys(listedmdt)) == _.size(mdtTypes));
     return listedmdt;
+}
+
+export async function readMetadataSOAP(mdtType,fullNames) {
+    assert.ok(typeof mdtType == 'string');
+    assert.ok(Array.isArray(fullNames));
+    // {
+    //     'CustomObject':[
+    //         'Customer',
+    //          'Account',
+    //          'Contact'
+    //     ],
+    //     'Profile': [
+    //         'High Volume Customer Portal User',
+    //          'Silver Partner User'
+    //     ]
+    // }
+    // const fullNames = [ 'Account', 'Contact' ];
+    // const metadata = await conn.metadata.read('CustomObject', fullNames);
+
+    var { soap,version,isTest } = getAdminConnection();
+    var mdt = await soap.metadata.read(mdtType,fullNames);
+
+    var fullNameResults = _.map(mdt,(el,ind,arr) => el.fullName);
+    assert.ok(_.every(fullNames,(fn) => fullNameResults.includes(fn)));
+
+    var allExpectedProps = [
+        `fullName`,`applicationVisibilities`,`custom`,`classAccesses`,`externalDataSourceAccesses`,`fieldPermissions`,
+        `flowAccesses`,`layoutAssignments`,`objectPermissions`,`objectPermissions`,`recordTypeVisibilities`,
+        `tabVisibilities`,`userLicense`,`userPermissions`,`categoryGroupVisibilities`,`customMetadataTypeAccesses`,`customPermissions`,
+        `loginIpRanges`,`pageAccesses`,`profileActionOverrides`
+    ];
+
+    assert.ok( _.every( Object.keys(_.first(mdt)), (prop) => {
+        //console.log(prop);
+        return allExpectedProps.includes(prop);
+    }));
+            
+    return mdt;
 }
