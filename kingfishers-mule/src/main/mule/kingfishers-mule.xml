@@ -1,9 +1,9 @@
-<mule xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xmlns:salesforce="http://www.mulesoft.org/schema/mule/salesforce" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
-	http://www.mulesoft.org/schema/mule/salesforce http://www.mulesoft.org/schema/mule/salesforce/current/mule-salesforce.xsd">
+<mule xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:salesforce="http://www.mulesoft.org/schema/mule/salesforce" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd  http://www.mulesoft.org/schema/mule/salesforce http://www.mulesoft.org/schema/mule/salesforce/current/mule-salesforce.xsd">
   <flow name="name1">
-        <salesforce:sfdc-config name="Salesforce_Config" >
-          <salesforce:basic-connection username="" password="" securityToken=""/>
-        </salesforce:sfdc-config>
-        <salesforce:read-metadata type="" config-ref="config-ref" doc:name="Read metadata" doc:id="exzthx" /></flow>
+    <salesforce:sfdc-config name="Salesforce_Config">
+      <salesforce:basic-connection password="" securityToken="" username=""></salesforce:basic-connection>
+    </salesforce:sfdc-config>
+    <salesforce:read-metadata config-ref="config-ref" doc:id="exzthx" doc:name="Read metadata" type=""></salesforce:read-metadata>
+  </flow>
+  <flow name="name1"></flow>
 </mule>
