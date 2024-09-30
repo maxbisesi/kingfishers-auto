@@ -1,0 +1,14 @@
+{
+    "routes": [
+        {
+            "id": "home",
+            "uri": "/",
+            "component": "kingfisher/home"
+        }
+    ],
+    "caseSensitive": "true",
+    "i18n": {
+          "defaultLocale": "en-US",
+          "locales": [{ "id": "en-US" }]
+    }
+}

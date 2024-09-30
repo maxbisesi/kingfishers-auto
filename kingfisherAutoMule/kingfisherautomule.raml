@@ -1,0 +1,17 @@
+#%RAML 1.0
+title: Kingfisher Auto API
+types:
+  Profile:
+    type: object
+    properties:
+      fullName:
+        type: string
+
+documentation:
+ - title: Home
+   content: Use /profile to get profile mdt
+
+/profile:
+    description: Salesforce profile metadata
+    /fls:
+    

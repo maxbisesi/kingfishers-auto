@@ -1,0 +1,10 @@
+{
+  "main": "kingfisherautomule.raml",
+  "name": "kingfisherAutoMule",
+  "classifier": "raml",
+  "apiVersion": "v1",
+  "descriptorVersion": "1.0.0",
+  "groupId": null,
+  "assetId": "kingfisherautomule",
+  "version": "1.0.0"
+}
