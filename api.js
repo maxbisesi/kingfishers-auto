@@ -38,9 +38,8 @@ export async function connectAs(userData) {
             loginUrl: userData.loginUrl
         }
     });
-
+    console.log(`connected loginResponse: ${soap}`);
     var loginResponse = await soap.login(userData.username, userData.password);
-    //console.log(`connected as Id: ${loginResponse.id}`);
     
     var rest = await axios.create({
         baseURL: soap.instanceUrl,

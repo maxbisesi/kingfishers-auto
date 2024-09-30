@@ -48,3 +48,5 @@ assert.ok(Array.isArray(readMetadataSOAPResult));
 assert.ok(_.size(readMetadataSOAPResult) == 2);
 // fs.writeFile('./readMetadataSOAPResponse.json',JSON.stringify(readMetadataSOAPResult));
 
+
+// get admin api token
