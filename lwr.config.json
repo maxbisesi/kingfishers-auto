@@ -4,19 +4,10 @@
         {
           "id": "home",
           "path": "/",
-          "rootComponent": "kingfisher/home"
-        }
-    ],
-    "assets": [
-        {
-            "alias": "assetsDir",
-            "dir": "$rootDir/src/assets",
-            "urlPath": "/public/assets"
-        },
-        {
-            "alias": "favicon",
-            "file": "$rootDir/src/assets/favicon.ico",
-            "urlPath": "/favicon.ico"
+          "rootComponent": "kingfisher/home",
+          "bootstrap": {
+            "syntheticShadow": true
+          }
         }
     ]
 }

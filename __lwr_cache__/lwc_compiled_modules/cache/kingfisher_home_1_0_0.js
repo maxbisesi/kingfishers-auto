@@ -1,10 +1,22 @@
 import { registerDecorators as _registerDecorators, LightningElement, registerComponent as _registerComponent } from "lwc";
 import _tmpl from "./home.html";
-import { createRouter } from "@lwrjs/router/kf-router-config";
+import { createRouter } from 'lwr/router';
+
+// Route definition array
+var routes = [{
+  id: 'home',
+  uri: '/',
+  handler: () => import('kingfisher/homePageHandler'),
+  page: {
+    type: 'home'
+  }
+}];
 class Home extends LightningElement {
   constructor(...args) {
     super(...args);
-    this.router = createRouter();
+    this.router = createRouter({
+      routes
+    });
   }
   /*LWC compiler v8.1.2*/
 }
