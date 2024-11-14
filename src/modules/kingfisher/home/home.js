@@ -9,10 +9,9 @@ var routes = [
     handler: () => import('kingfisher/homePageHandler'),
     page: {
       type: 'home',
-    },
+    }
   }
 ];
-
 
 
 export default class Home extends LightningElement {

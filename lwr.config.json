@@ -9,5 +9,16 @@
             "syntheticShadow": true
           }
         }
-    ]
+    ],
+    "assets": [
+    {
+        "alias": "assetsDir",
+        "dir": "$rootDir/src/assets",
+        "urlPath": "/assets"
+    },
+    {
+        "file": "$rootDir/src/assets/icons/utility-sprite/svg/symbols.svg",
+        "urlPath": "/lightning.utilitySprite"
+    }
+]
 }
